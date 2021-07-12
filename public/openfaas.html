@@ -1,0 +1,89 @@
+<html>
+    <head>
+        <title> 
+            openfaas
+        </title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/styles/default.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/highlight.min.js"></script>
+
+    <script>
+      hljs.highlightAll();
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      .markdown-body {
+        box-sizing: border-box;
+        min-width: 200px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 45px;
+      }
+
+      @media (max-width: 767px) {
+        .markdown-body {
+          padding: 15px;
+        }
+      }
+    </style>
+    </head>
+
+    <body>
+        <div>
+            <article class="markdown-body"> 
+                <hr class="thin" />
+<p>
+date: “2018-06-24 15:43:46”
+title: openfaas</p>
+<hr class="thin" />
+<p>
+对于mac环境来讲，首先安装新版docker:</p>
+<pre><code>brew cask install docker</code></pre>
+<p>
+然后启动docker。</p>
+<p>
+命令行登陆docker hub</p>
+<pre><code>docker login</code></pre>
+<p>
+启动docker swarm</p>
+<pre><code>docker swarm init</code></pre>
+<p>
+安装faas-cli</p>
+<pre><code>brew install faas-cli</code></pre>
+<p>
+clone下来代码：</p>
+<pre><code>git clone https://github.com/openfaas/faas</code></pre>
+<p>
+然后执行</p>
+<pre><code>./deploy_stack.sh</code></pre>
+<p>
+部署一些示例</p>
+<pre><code>faas-cli deploy -f https://raw.githubusercontent.com/openfaas/faas/master/stack.yml</code></pre>
+<p>
+使用浏览器打开 <a href="http://127.0.0.1:8080">http://127.0.0.1:8080</a>  就可以看到ui界面了。</p>
+<p>
+安装grafana进行监控</p>
+<pre><code>docker service create -d \
+--name=grafana \
+--publish=3000:3000 \
+--network=func_functions \
+stefanprodan/faas-grafana:4.6.3</code></pre>
+<p>
+浏览器打开： <a href="http://127.0.0.1:3000">http://127.0.0.1:3000</a>  登陆admin  admin 查看。</p>
+<p>
+常用命令：</p>
+<pre><code>$ faas-cli new --list
+$ faas-cli build -f ./hello-openfaas.yml
+$ faas-cli push -f ./hello-openfaas.yml
+$ faas-cli deploy -f ./hello-openfaas.yml</code></pre>
+
+            </article>
+        </div>
+    </body>
+</html>
+
+    

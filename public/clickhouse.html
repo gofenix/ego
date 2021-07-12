@@ -1,0 +1,137 @@
+<html>
+    <head>
+        <title> 
+            clickhouse
+        </title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/styles/default.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/highlight.min.js"></script>
+
+    <script>
+      hljs.highlightAll();
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      .markdown-body {
+        box-sizing: border-box;
+        min-width: 200px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 45px;
+      }
+
+      @media (max-width: 767px) {
+        .markdown-body {
+          padding: 15px;
+        }
+      }
+    </style>
+    </head>
+
+    <body>
+        <div>
+            <article class="markdown-body"> 
+                <hr class="thin" />
+<p>
+date: “2019-10-12T06:48:01.338Z”
+title: clickhouse</p>
+<hr class="thin" />
+<h1>
+ClickHouse</h1>
+<p>
+ClickHouse 是一个用于联机分析（Online Analytical Processing：OLAP）的列式数据库管理系统(DBMS)。通过使用 OLAP 工具，用户能够从多个角度交互地分析多维数据。</p>
+<p>
+OLAP 由三个基本的分析操作组成：上卷（roll-up）、钻取（drill-down）、切片（slicing）和切块（dicing）。</p>
+<ul>
+  <li>
+    <p>
+上卷（roll-up）：涉及可以在一个或多个维度中累积和计算的数据的聚合。例如，所有的销售办事处汇总到销售部门，以预测销售趋势。    </p>
+  </li>
+  <li>
+    <p>
+钻取（drill-down）：是一种允许用户浏览详细信息的技术。例如，用户可以查看组成一个地区销售额的单个产品的销售额。    </p>
+  </li>
+  <li>
+    <p>
+切片（slicing）和切块（dicing）：用户可以从 OLAP 多维数据集中取出（切片）一组特定的数据，并从不同的角度查看（切块）切片。这些角度有时被称为维度（例如按销售人员、按日期、按客户、按产品或按地区查看相同的销售情况等）。    </p>
+  </li>
+</ul>
+<p>
+传统行式数据库中，处于同一行中的数据总是被物理的存在一起。列式数据库总是将同一列的数据存储在一起，不同列的数据分开存储。</p>
+<p>
+行式数据库：mysql，pg</p>
+<p>
+列式数据库：vertica，druid</p>
+<h2>
+OLAP的关键特征</h2>
+<ul>
+  <li>
+大多是读请求  </li>
+  <li>
+数据总是以相当大的批（&gt;1000w）进行写入  </li>
+  <li>
+不修改已经添加的数据  </li>
+  <li>
+每次查询都从数据库中读取大量的行，但是同时又仅需要少量的列  </li>
+  <li>
+宽表，即每个表包含大量的列  </li>
+  <li>
+较少的查询（通常每台服务器每秒数百个查询或更少）  </li>
+  <li>
+对于简单的查询，允许延迟大约50ms  </li>
+  <li>
+列中的数据相对较小：数字和短字符串  </li>
+  <li>
+处理单个查询时需要高吞吐量（每个服务器每秒高达数十亿行）  </li>
+  <li>
+事务不是必须的  </li>
+  <li>
+对数据一致性要求低  </li>
+  <li>
+每一个查询除了一个大表外都很小  </li>
+  <li>
+查询结果明显小于数据源，换句话说，数据被过滤或者聚合之后能够被放在单台服务器的内存中  </li>
+</ul>
+<h2>
+列式数据库更适合OLAP场景</h2>
+<h3>
+Input/Output</h3>
+<ol>
+  <li>
+分析类的查询，通常只需要读取表的一小部分列。  </li>
+  <li>
+数据总是打包成批量读取，列压缩更容易  </li>
+  <li>
+IO降低了  </li>
+</ol>
+<h3>
+CPU</h3>
+<p>
+由于执行一个查询需要处理大量的行，因此在整个向量上执行所有操作将比在每一行上执行所有操作更加高效。同时这将有助于实现一个几乎没有调用成本的查询引擎。</p>
+<ol>
+  <li>
+向量引擎  </li>
+  <li>
+代码生成  </li>
+</ol>
+<p>
+为了提高CPU效率，查询语言必须是声明型的(SQL或MDX)， 或者至少一个向量(J，K)。 查询应该只包含隐式循环，允许进行优化。</p>
+<h1>
+clickhouse的独特功能</h1>
+<h2>
+真正的列式数据库管理系统</h2>
+<ul>
+  <li>
+  </li>
+</ul>
+
+            </article>
+        </div>
+    </body>
+</html>
+
+    

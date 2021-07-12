@@ -1,0 +1,96 @@
+<html>
+    <head>
+        <title> 
+            git
+        </title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/styles/default.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/highlight.min.js"></script>
+
+    <script>
+      hljs.highlightAll();
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      .markdown-body {
+        box-sizing: border-box;
+        min-width: 200px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 45px;
+      }
+
+      @media (max-width: 767px) {
+        .markdown-body {
+          padding: 15px;
+        }
+      }
+    </style>
+    </head>
+
+    <body>
+        <div>
+            <article class="markdown-body"> 
+                <hr class="thin" />
+<p>
+date: “2018-05-14 10:04:02”
+title: git常用操作</p>
+<hr class="thin" />
+<p>
+整理一下常用的git操作，不用再到处找了。</p>
+<h1>
+git放弃本地修改，强制更新</h1>
+<pre><code>git fetch --all
+git reset --hard origin/master</code></pre>
+<h1>
+git修改远程仓库地址</h1>
+<pre><code>git remote set-url origin url</code></pre>
+<h1>
+cherry-pick</h1>
+<p>
+当你通过一番挣扎终于搞定一个bug,顺手提交到 git 服务器,心里一阵暗爽. 这时发现你当前所在的分支是 master !!!</p>
+<p>
+这个分支不是开发者用来提交代码的,可惜现在剁手也晚了.</p>
+<ol>
+  <li>
+先切换到master  </li>
+</ol>
+<pre><code>git checkout master
+
+git log</code></pre>
+<ol start="2">
+  <li>
+    <p>
+复制提交的commit id    </p>
+  </li>
+  <li>
+    <p>
+切换到dev, cherry-pick    </p>
+  </li>
+</ol>
+<pre><code>git checkout dev
+
+git cherry-pic ${commit_id}</code></pre>
+<h1>
+常用开发流程</h1>
+<p>
+git checkout -b feature1</p>
+<p>
+git commit之后，进行rebase</p>
+<p>
+git pull –rebase</p>
+<p>
+gca!</p>
+<p>
+git rvm</p>
+
+            </article>
+        </div>
+    </body>
+</html>
+
+    

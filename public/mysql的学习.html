@@ -1,0 +1,70 @@
+<html>
+    <head>
+        <title> 
+            mysql的学习
+        </title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/styles/default.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/highlight.min.js"></script>
+
+    <script>
+      hljs.highlightAll();
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      .markdown-body {
+        box-sizing: border-box;
+        min-width: 200px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 45px;
+      }
+
+      @media (max-width: 767px) {
+        .markdown-body {
+          padding: 15px;
+        }
+      }
+    </style>
+    </head>
+
+    <body>
+        <div>
+            <article class="markdown-body"> 
+                <hr class="thin" />
+<p>
+date: “2020-04-16T17:34:30+08:00”
+title: mysql的学习</p>
+<hr class="thin" />
+<h1>
+SQL条件语句</h1>
+<h2>
+IF</h2>
+<p>
+if(exp1, exp2, exp3)</p>
+<p>
+exp1是条件，条件为true的话，是exp2，否则是exp3</p>
+<h2>
+case when</h2>
+<pre><code class="sql">
+case 列名
+    when 条件 then 结果
+    else 其他结果
+    end 别名</code></pre>
+<h2>
+IFNULL</h2>
+<p>
+IFNULL(exp1, exp2)</p>
+<p>
+在exp1的值不为null的情况下，返回exp1，如果exp1位null，返回exp2的值。</p>
+
+            </article>
+        </div>
+    </body>
+</html>
+
+    

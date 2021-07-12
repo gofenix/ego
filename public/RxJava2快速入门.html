@@ -1,0 +1,268 @@
+<html>
+    <head>
+        <title> 
+            RxJava2快速入门
+        </title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/styles/default.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/highlight.min.js"></script>
+
+    <script>
+      hljs.highlightAll();
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      .markdown-body {
+        box-sizing: border-box;
+        min-width: 200px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 45px;
+      }
+
+      @media (max-width: 767px) {
+        .markdown-body {
+          padding: 15px;
+        }
+      }
+    </style>
+    </head>
+
+    <body>
+        <div>
+            <article class="markdown-body"> 
+                <hr class="thin" />
+<p>
+date: “2018-03-24 17:55:56”
+title: RxJava2快速入门</p>
+<hr class="thin" />
+<h1>
+RxJava2快速入门</h1>
+<h2>
+引入依赖</h2>
+<pre><code>compile &#39;io.reactivex.rxjava2:rxjava:2.0.1&#39;</code></pre>
+<h2>
+写法</h2>
+<h3>
+简单版本</h3>
+<pre><code>    private static void helloSimple() {
+        Consumer&lt;String&gt; consumer = new Consumer&lt;String&gt;() {
+            @Override
+            public void accept(String s) throws Exception {
+                System.out.println(&quot;consumer accept is &quot; + s);
+            }
+        };
+
+        Observable.just(&quot;hello world&quot;).subscribe(consumer);
+    }</code></pre>
+<h3>
+复杂版本</h3>
+<pre><code>    private static void helloComplex() {
+        Observer&lt;String&gt; observer = new Observer&lt;String&gt;() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                System.out.println(&quot;onSubscribe: &quot; + d);
+            }
+
+            @Override
+            public void onNext(String s) {
+                System.out.println(&quot;onNext: &quot; + s);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                System.out.println(&quot;onError: &quot; + e);
+            }
+
+            @Override
+            public void onComplete() {
+                System.out.println(&quot;onComplete: &quot;);
+            }
+        };
+
+        Observable.just(&quot;Hello world&quot;).subscribe(observer);
+    }</code></pre>
+<h3>
+变态版本</h3>
+<pre><code>    private static void helloPlus() {
+        Observer&lt;String&gt; observer = new Observer&lt;String&gt;() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                System.out.println(&quot;onSubscribe: &quot; + d);
+            }
+
+            @Override
+            public void onNext(String s) {
+                System.out.println(&quot;onNext: &quot; + s);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                System.out.println(&quot;onError: &quot; + e);
+            }
+
+            @Override
+            public void onComplete() {
+                System.out.println(&quot;onComplete: &quot;);
+            }
+        };
+
+        Observable&lt;String&gt; observable = Observable.create(new ObservableOnSubscribe&lt;String&gt;() {
+            @Override
+            public void subscribe(ObservableEmitter&lt;String&gt; e) throws Exception {
+                e.onNext(&quot;hello world&quot;);
+                e.onComplete();
+            }
+        });
+
+        observable.subscribe(observer);
+    }</code></pre>
+<h2>
+常用操作符</h2>
+<h3>
+filter</h3>
+<p>
+你早上去吃早餐，师傅是被观察者，说咱这有”包子”, “馒头”, “花生”, “牛奶”, “饺子”, “春卷”, “油条”，你仔细想了想，发现你是最喜欢饺子的，所以把其他的都排除掉，
+于是你就吃到了饺子。</p>
+<pre><code>    private static void helloFilter() {
+        Consumer&lt;String&gt; consumer = new Consumer&lt;String&gt;() {
+            @Override
+            public void accept(String s) throws Exception {
+                System.out.println(&quot;accept: &quot; + s);
+            }
+        };
+
+        Observable.just(&quot;包子&quot;, &quot;馒头&quot;, &quot;花生&quot;, &quot;牛奶&quot;, &quot;饺子&quot;, &quot;春卷&quot;, &quot;油条&quot;)
+                .filter(new Predicate&lt;String&gt;() {
+                    @Override
+                    public boolean test(String s) throws Exception {
+                        System.out.println(&quot;test: &quot; + s);
+                        return s.equals(&quot;饺子&quot;);
+                    }
+                })
+                .subscribe(consumer);
+    }</code></pre>
+<h3>
+Map</h3>
+<p>
+map操作符能够完成数据类型的转换。</p>
+<p>
+将String类型转换为Integer类型。</p>
+<pre><code>    private static void helloMap() {
+        // 观察者观察Integer
+        Observer&lt;Integer&gt; observer = new Observer&lt;Integer&gt;() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                System.out.println(&quot;onSubscribe: &quot; + d);
+            }
+
+            @Override
+            public void onNext(Integer s) {
+                System.out.println(&quot;onNext: &quot; + s);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                System.out.println(&quot;onError: &quot; + e);
+            }
+
+            @Override
+            public void onComplete() {
+                System.out.println(&quot;onComplete: &quot;);
+            }
+        };
+
+        Observable.just(&quot;100&quot;)
+                .map(new Function&lt;String, Integer&gt;() {
+                    @Override
+                    public Integer apply(String s) throws Exception {
+                        return Integer.valueOf(s);
+                    }
+                })
+                .subscribe(observer);
+    }</code></pre>
+<h3>
+FlatMap</h3>
+<p>
+flatmap能够链式地完成数据类型的转换和加工。</p>
+<p>
+遍历一个学校所有班级所有组的所有学生</p>
+<pre><code>private void flatmapClassToGroupToStudent() {
+    Observable.fromIterable(new School().getClasses())
+            //输入是Class类型，输出是ObservableSource&lt;Group&gt;类型
+            .flatMap(new Function&lt;Class, ObservableSource&lt;Group&gt;&gt;() {
+                @Override
+                public ObservableSource&lt;Group&gt; apply(Class aClass) throws Exception {
+                    Log.d(TAG, &quot;apply: &quot; + aClass.toString());
+                    return Observable.fromIterable(aClass.getGroups());
+                }
+            })
+            //输入类型是Group，输出类型是ObservableSource&lt;Student&gt;类型
+            .flatMap(new Function&lt;Group, ObservableSource&lt;Student&gt;&gt;() {
+                @Override
+                public ObservableSource&lt;Student&gt; apply(Group group) throws Exception {
+                    Log.d(TAG, &quot;apply: &quot; + group.toString());
+                    return Observable.fromIterable(group.getStudents());
+                }
+            })
+            .subscribe(
+                    new Observer&lt;Student&gt;() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+                            Log.d(TAG, &quot;onSubscribe: &quot;);
+                        }
+
+                        @Override
+                        public void onNext(Student value) {
+                            Log.d(TAG, &quot;onNext: &quot; + value.toString());
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+
+                        @Override
+                        public void onComplete() {
+
+                        }
+                    });
+}
+</code></pre>
+<h1>
+线程调度</h1>
+<p>
+关于RxJava的线程调度，初学者只需要掌握两个api就够够的啦。</p>
+<h2>
+subscribeOn</h2>
+<p>
+指定Observable在一个指定的线程调度器上创建。只能指定一次，如果指定多次则以第一次为准</p>
+<h2>
+observeOn</h2>
+<p>
+指定在事件传递，转换，加工和最终被观察者接受发生在哪一个线程调度器。可指定多次，每次指定完都在下一步生效。</p>
+<h2>
+常用线程调度器类型</h2>
+<ul>
+  <li>
+Schedulers.single()  单线程调度器，线程可复用  </li>
+  <li>
+Schedulers.newThread() 为每个任务创建新的线程  </li>
+  <li>
+Schedulers.io() 处理io密集型任务，内部是线程池实现，可自动根据需求增长  </li>
+  <li>
+Schedulers.computation() 处理计算任务，如事件循环和回调任务  </li>
+  <li>
+AndroidSchedulers.mainThread() Android主线程调度器  </li>
+</ul>
+
+            </article>
+        </div>
+    </body>
+</html>
+
+    

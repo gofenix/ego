@@ -1,0 +1,120 @@
+<html>
+    <head>
+        <title> 
+            overview-of-openfaas
+        </title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/styles/default.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/highlight.min.js"></script>
+
+    <script>
+      hljs.highlightAll();
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      .markdown-body {
+        box-sizing: border-box;
+        min-width: 200px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 45px;
+      }
+
+      @media (max-width: 767px) {
+        .markdown-body {
+          padding: 15px;
+        }
+      }
+    </style>
+    </head>
+
+    <body>
+        <div>
+            <article class="markdown-body"> 
+                <hr class="thin" />
+<p>
+date: “2018-07-26 17:41:33”
+title: overview-of-openfaas</p>
+<hr class="thin" />
+<h2>
+OpenFaaS概览</h2>
+<blockquote>
+  <p>
+无服务器函数变得简单。  </p>
+</blockquote>
+<p>
+  <img src="https://ws1.sinaimg.cn/large/b831e4c7gy1ftucj00kylj20xc0j511g.jpg" alt="" />
+</p>
+<h3>
+函数监视器</h3>
+<ul>
+  <li>
+你可以通过添加<em>函数监视器</em> (一个小型的Golang HTTP服务)把任何一个Docker镜像变成无服务器函数。  </li>
+  <li>
+<em>函数监视器</em>是允许HTTP请求通过STDIN转发到目标进程的入口点。响应会从你应用写入STDOUT返回给调用者。  </li>
+</ul>
+<h3>
+API网关/UI门户</h3>
+<ul>
+  <li>
+API网关为你的函数提供外部路由，并通过Prometheus收集云原生指标。  </li>
+  <li>
+你的API网关将会根据需求更改Docker Swarm 或 Kubernetes API中的服务副本数来实现伸缩性。  </li>
+  <li>
+UI是允许你在浏览器中调用函数或者根据需要创建新的函数。  </li>
+</ul>
+<blockquote>
+  <p>
+API网关是一个RESTful形式的微服务，你可以在这里查看<a href="https://github.com/openfaas/faas/tree/master/api-docs">Swagger文档</a>。  </p>
+</blockquote>
+<h3>
+命令行</h3>
+<p>
+Docker中的任何容器或者进程都可以是FaaS中的一个无服务器函数。使用<a href="http://github.com/openfaas/faas-cli">FaaS CLI</a> ，你可以快速的部署函数。</p>
+<p>
+可以从Node.js, Python, <a href="https://blog.alexellis.io/serverless-golang-with-openfaas/">Go</a> 或者更多的语言模板中创建新的函数。如果你无法找到一个合适的模板，甚至可以使用一个Dockerfile。</p>
+<blockquote>
+  <p>
+CLI实际上是API网关的一个RESTful客户端。  </p>
+</blockquote>
+<p>
+在配置好OpenFaaS之后，你可以在这里开始学习CLI<a href="https://blog.alexellis.io/quickstart-openfaas-cli/">开始学习CLI</a></p>
+<h3>
+函数示例</h3>
+<p>
+你可以通过 使用FaaS-CLI和其内置的模板创建新函数，也可以在Docker中使用Windows或Linux的二进制文件。</p>
+<ul>
+  <li>
+Python示例：  </li>
+</ul>
+<pre><code>import requests
+
+def handle(req):
+    r =  requests.get(req, timeout = 1)
+    print(req +&quot; =&gt; &quot; + str(r.status_code))</code></pre>
+<p>
+<em>handler.py</em></p>
+<ul>
+  <li>
+Node.js示例：  </li>
+</ul>
+<pre><code>&quot;use strict&quot;
+
+module.exports = (callback, context) =&gt; {
+    callback(null, {&quot;message&quot;: &quot;You said: &quot; + context})
+}</code></pre>
+<p>
+<em>handler.js</em></p>
+<p>
+在Github仓库中提供了一系列编程语言的其他<a href="https://github.com/openfaas/faas/tree/master/sample-functions">示例函数</a> 。</p>
+
+            </article>
+        </div>
+    </body>
+</html>
+
+    

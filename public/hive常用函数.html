@@ -1,0 +1,149 @@
+<html>
+    <head>
+        <title> 
+            hive常用函数
+        </title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/styles/default.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/highlight.min.js"></script>
+
+    <script>
+      hljs.highlightAll();
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      .markdown-body {
+        box-sizing: border-box;
+        min-width: 200px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 45px;
+      }
+
+      @media (max-width: 767px) {
+        .markdown-body {
+          padding: 15px;
+        }
+      }
+    </style>
+    </head>
+
+    <body>
+        <div>
+            <article class="markdown-body"> 
+                <hr class="thin" />
+<p>
+date: “2020-04-16T17:59:03+08:00”
+title: hive常用函数</p>
+<hr class="thin" />
+<h1>
+json 字符串处理</h1>
+<ul>
+  <li>
+get_json_object  </li>
+  <li>
+lateral_view  </li>
+  <li>
+explode  </li>
+  <li>
+substr  </li>
+  <li>
+json_tuple  </li>
+</ul>
+<h2>
+get_json_object</h2>
+<p>
+get_json_object(string json_string, string path)</p>
+<p>
+解析 json 字符串 json_string，返回 path 指定的内容。如果输入的 json 字符串是无效的，那么返回 null。</p>
+<p>
+path 就是 ‘\$.字段名’。</p>
+<p>
+如果该字段的 value 也是 json，就可以一直点下去。</p>
+<p>
+如果该字段的 value 是数组，就可以用 ‘\$.字段名[0]’，类似这样下标的形式去访问。</p>
+<h2>
+explode</h2>
+<p>
+explode(array)</p>
+<p>
+经常和 lateral view 一起使用，将数组中的元素拆分成多行显示。</p>
+<h2>
+substr</h2>
+<p>
+substr(string A, int start, int len)</p>
+<p>
+返回字符串 A 从 start 位置开始，长度为 len 的字符串</p>
+<h2>
+json_tuple</h2>
+<p>
+json_tuple(string json_string, col1, col2, …)</p>
+<p>
+经常和 lateral view 一起使用，同时解析多个 json 字符串中的多个字段。</p>
+<h1>
+parse_url, regexp_replace, regexp_extract</h1>
+<h2>
+parse_url</h2>
+<p>
+parse_url(string urlString, string partToExtract, string keyToExtract)</p>
+<p>
+返回 url 中的指定部分，如 host，path，query 等等。</p>
+<p>
+partToExtract 是个枚举值：HOST, PATH, QUERY, REF, PROTOCOL, AUTHORITY, FILE, and USERINFO。</p>
+<h2>
+regex_replace</h2>
+<p>
+regex_extract(string a, string b, string c)</p>
+<p>
+将字符串 a 中符合正在表达式 b 的部分替换为 c</p>
+<h1>
+json_to_struct</h1>
+<p>
+json_to_struct(json, ‘array 或者 map 等’)</p>
+<h1>
+union_map</h1>
+<p>
+union_map(map(k, v))</p>
+<h1>
+lateral view</h1>
+<h1>
+from_unix_time</h1>
+<p>
+from_unix_time(unix 时间戳, ‘yyyyMMddHH’)</p>
+<h1>
+row_number</h1>
+<p>
+row_number() over (partition by 字段 a order by 计算项 b desc ) rank</p>
+<p>
+hive 中的分组和组内排序</p>
+<ul>
+  <li>
+rank 是排序的别名  </li>
+  <li>
+partition by： 类似于 hive 的建表，分区的意思  </li>
+  <li>
+order by： 排序，默认是升序，加 desc 降序  </li>
+</ul>
+<p>
+这个意思就是按字段 a 分区，对计算项 b 进行降序排列</p>
+<p>
+这个是经常用到计算分区中的排序问题。</p>
+<h1>
+coalesce</h1>
+<p>
+非空查找函数</p>
+<p>
+coalesce(v1, v2, v3, …)</p>
+<p>
+返回参数中的第一个非空值，如果所有值都是 NULL，返回 NULL</p>
+
+            </article>
+        </div>
+    </body>
+</html>
+
+    

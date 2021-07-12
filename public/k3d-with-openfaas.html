@@ -1,0 +1,97 @@
+<html>
+    <head>
+        <title> 
+            k3d-with-openfaas
+        </title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/styles/default.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/highlight.min.js"></script>
+
+    <script>
+      hljs.highlightAll();
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      .markdown-body {
+        box-sizing: border-box;
+        min-width: 200px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 45px;
+      }
+
+      @media (max-width: 767px) {
+        .markdown-body {
+          padding: 15px;
+        }
+      }
+    </style>
+    </head>
+
+    <body>
+        <div>
+            <article class="markdown-body"> 
+                <hr class="thin" />
+<p>
+title: “K3d With Openfaas”
+date: 2021-03-10T20:09:11+08:00
+draft: false</p>
+<hr class="thin" />
+<h1>
+openfaas</h1>
+<p>
+<a href="https://github.com/openfaas/workshop/blob/master/lab1b.md">https://github.com/openfaas/workshop/blob/master/lab1b.md</a></p>
+<h2>
+安装docker</h2>
+<pre><code>brew install homebrew/cask/docker</code></pre>
+<h2>
+安装单节点K8S</h2>
+<pre><code>brew install k3d</code></pre>
+<p>
+配置单节点K8S集群</p>
+<pre><code>k3d cluster create CLUSTER_NAME
+
+k3d kubeconfig merge CLUSTER_NAME --kubeconfig-switch-context
+
+kubectl get pods --all-namespaces
+</code></pre>
+<h2>
+安装arkade</h2>
+<pre><code>curl -SLsf https://dl.get-arkade.dev/ | sudo sh</code></pre>
+<h2>
+安装openfaas客户端 faas-cli</h2>
+<pre><code>brew install faas-cli</code></pre>
+<h2>
+安装openfaas server端</h2>
+<pre><code>arkade install openfaas</code></pre>
+<p>
+配置openfaas的ui界面</p>
+<pre><code>kubectl rollout status -n openfaas deploy/gateway
+
+kubectl port-forward svc/gateway -n openfaas 8080:8080</code></pre>
+<p>
+这样就可以在浏览器里输入 127.0.0.1:8080 进入到openfaas的ui界面了。</p>
+<p>
+但是当你打开页面的时候，要输入密码，那就需要下面的操作：</p>
+<pre><code># This command retrieves your password
+PASSWORD=$(kubectl get secret -n openfaas basic-auth -o jsonpath=&quot;{.data.basic-auth-password}&quot; | base64 --decode; echo)
+
+# This command logs in and saves a file to ~/.openfaas/config.yml
+echo -n $PASSWORD | faas-cli login --username admin --password-stdin
+</code></pre>
+<p>
+或者直接在命令行输入，拿到密码：</p>
+<pre><code>echo $(kubectl get secret -n openfaas basic-auth -o jsonpath=&quot;{.data.basic-auth-password}&quot; | base64 --decode; echo)</code></pre>
+<p>
+用户名是admin，密码输入到浏览器里即可。</p>
+
+            </article>
+        </div>
+    </body>
+</html>
+
+    

@@ -1,0 +1,181 @@
+<html>
+    <head>
+        <title> 
+            socket
+        </title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/styles/default.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/highlight.min.js"></script>
+
+    <script>
+      hljs.highlightAll();
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      .markdown-body {
+        box-sizing: border-box;
+        min-width: 200px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 45px;
+      }
+
+      @media (max-width: 767px) {
+        .markdown-body {
+          padding: 15px;
+        }
+      }
+    </style>
+    </head>
+
+    <body>
+        <div>
+            <article class="markdown-body"> 
+                <hr class="thin" />
+<p>
+date: “2019-08-26T06:54:14.652Z”
+title: socket</p>
+<hr class="thin" />
+<h1>
+Socket</h1>
+<h1>
+网络模型</h1>
+<h2>
+osi七层模型</h2>
+<ul>
+  <li>
+应用层  </li>
+  <li>
+表示层  </li>
+  <li>
+会话层  </li>
+  <li>
+传输层  </li>
+  <li>
+网络层  </li>
+  <li>
+数据链路层  </li>
+  <li>
+物理层  </li>
+</ul>
+<h2>
+对应的tcpip就是</h2>
+<ul>
+  <li>
+应用层    <ul>
+      <li>
+dns      </li>
+      <li>
+http      </li>
+    </ul>
+  </li>
+  <li>
+传输层    <ul>
+      <li>
+icmp      </li>
+      <li>
+tcp      </li>
+      <li>
+udp      </li>
+    </ul>
+  </li>
+  <li>
+ip层    <ul>
+      <li>
+ipv4      </li>
+      <li>
+ipv6      </li>
+    </ul>
+  </li>
+  <li>
+mac层    <ul>
+      <li>
+arp      </li>
+      <li>
+vlan      </li>
+    </ul>
+  </li>
+  <li>
+物理层    <ul>
+      <li>
+Ethernet      </li>
+    </ul>
+  </li>
+</ul>
+<h1>
+为什么要分层</h1>
+<p>
+因为网络环境过于复杂，不是一个能够集中控制的体系。全球的服务器和设备各有各的体系，但是可以通过同一套网络协议栈切分成多个层次和组合，来满足不同设备之间的通信需求。</p>
+<p>
+二层到四层，即mac、ip和传输等层都是Linux内核中处理。应用层的如浏览器、Nginx和Tomcat等都是用户态的。</p>
+<p>
+传输层的tcp和udp里都有端口的概念，不同应用监听不同的段即可。</p>
+<p>
+应用层和内核的互通机制，就是通过socket系统调用。其实socket哪一层都不属于，它是属于操作系统的概念，而不是网络分层的概念。因为操作系统把二层到四层的处理代码在内核里，应用层的处理代码让应用自己做，两者需要跨内核态和用户态进行通信，这个就是socket。</p>
+<h1>
+TCP和UDP的区别</h1>
+<ul>
+  <li>
+tcp是面向连接的，udp是面向无连接的  </li>
+  <li>
+tcp提供可靠交付，无差错、不丢失、不重复、并且按序到达。udp不提供可靠交付，可能丢失，不按顺序。  </li>
+  <li>
+tcp是面向字节流的，发送的是一个流，无头无尾。udp是数据报文的，一个一个发送。  </li>
+  <li>
+tcp可以提供流量控制和拥塞控制，可以防止对端被压垮，也防止网络被压垮。  </li>
+</ul>
+<p>
+<strong>所谓的连接，指两端的数据结构状态的协同，两边状态对的上，符合tcp协议的规则，就认为连接是存在的，否则就是断掉的。</strong></p>
+<p>
+<strong>所谓的建立连接，其实是为了在客户端和服务端维护连接，而建立一定的数据结构来维护双方交互的状态。并用这样的数据结构来保证面向连接的特性。tcp无法左右中间的任何通路，也没有什么虚拟的连接。</strong></p>
+<p>
+<strong>所谓的可靠，也是两端的数据结构做的事情。不丢失其实是数据结构在“点名”，顺序到达是数据结构在“排序”，面向数据流其实是数据结构将零散的包，按照顺序捏成一个流发给应用层。</strong></p>
+<p>
+<strong>所谓的流量控制和拥塞控制，其实就是根据收到的对端的网络包，调整两端的数据结构状态。</strong></p>
+<h1>
+socket函数</h1>
+<pre><code class="c">int socket(int domain, int type, int protocol)</code></pre>
+<p>
+socket函数用于创建一个socket文件描述符。</p>
+<ul>
+  <li>
+domain    <ul>
+      <li>
+使用什么ip层的协议。AF_INET标识ipv4，AF_INET6标识ipv6。      </li>
+    </ul>
+  </li>
+  <li>
+type    <ul>
+      <li>
+socket的类型。      </li>
+      <li>
+SOCK_STREAM，tcp流的      </li>
+      <li>
+SOCK_DGRAM，udp报文的      </li>
+      <li>
+SOCK_RAW，可以直接操作ip层，或非tcp和udp类型的      </li>
+    </ul>
+  </li>
+  <li>
+protocol    <ul>
+      <li>
+协议      </li>
+      <li>
+IPPROTO_TCP,  IPPROTO_UDP      </li>
+    </ul>
+  </li>
+</ul>
+<p>
+  <img src="/Users/lucas/Documents/Nutstore/assets/997e39e5574252ada22220e4b3646dda.png" alt="img" />
+</p>
+
+            </article>
+        </div>
+    </body>
+</html>
+
+    

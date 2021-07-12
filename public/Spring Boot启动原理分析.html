@@ -1,0 +1,273 @@
+<html>
+    <head>
+        <title> 
+            Spring Boot启动原理分析
+        </title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/styles/default.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/highlight.min.js"></script>
+
+    <script>
+      hljs.highlightAll();
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      .markdown-body {
+        box-sizing: border-box;
+        min-width: 200px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 45px;
+      }
+
+      @media (max-width: 767px) {
+        .markdown-body {
+          padding: 15px;
+        }
+      }
+    </style>
+    </head>
+
+    <body>
+        <div>
+            <article class="markdown-body"> 
+                <hr class="thin" />
+<p>
+date: “2018-03-24 19:03:22”
+title: Spring Boot启动原理分析</p>
+<hr class="thin" />
+<h1>
+Spring Boot启动原理分析</h1>
+<p>
+我们在开发spring boot应用的时候，一般会遇到如下的启动类：</p>
+<pre><code>@SpringBootApplication
+public class DemoApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+}</code></pre>
+<p>
+从这段代码可以看出，注解@SpringBootApplication和SpringApplication.run()是比较重要的两个东西。</p>
+<h2>
+1 @SpringApplication注解</h2>
+<pre><code>@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Inherited
+@SpringBootConfiguration
+@EnableAutoConfiguration
+@ComponentScan(excludeFilters = {
+        @Filter(type = FilterType.CUSTOM, classes = TypeExcludeFilter.class),
+        @Filter(type = FilterType.CUSTOM, classes = AutoConfigurationExcludeFilter.class) })
+public @interface SpringBootApplication {
+...
+}</code></pre>
+<p>
+在这段代码里，比较重要的只有三个注解：</p>
+<ul>
+  <li>
+@Configuration（@SpringBootConfiguration点开查看发现里面还是应用了@Configuration）  </li>
+  <li>
+@EnableAutoConfiguration  </li>
+  <li>
+@ComponentScan  </li>
+</ul>
+<p>
+其实，我们使用这三个注解来修饰springboot的启动类也可以正常运行,如下所示：</p>
+<pre><code>@ComponentScan
+@EnableAutoConfiguration
+@Configuration
+public class DemoApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+}</code></pre>
+<p>
+每次写这三个注解的话，比较繁琐，所以就spring团队就封装了一个@SpringBootApplication。</p>
+<h2>
+1.1 @Configuration</h2>
+<p>
+@Configuration就是JavaConfig形式的Spring Ioc容器的配置类使用的那个@Configuration，SpringBoot社区推荐使用基于JavaConfig的配置形式，所以，这里的启动类标注了@Configuration之后，本身其实也是一个IoC容器的配置类。</p>
+<p>
+XML跟config配置方式的区别可以从如下几个方面来说：</p>
+<ul>
+  <li>
+    <p>
+表达形式层面
+基于xml的配置方式是这样的：    </p>
+    <pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+     xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+     xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd&quot;
+     default-lazy-init=&quot;true&quot;&gt;
+  &lt;!--bean定义--&gt;
+&lt;/beans&gt;</code></pre>
+    <p>
+基于java config配置方式是这样的：    </p>
+    <pre><code>@Configuration
+public class MockConfiguration{
+    //bean定义
+}</code></pre>
+  </li>
+  <li>
+    <p>
+注册bean定义层面
+基于XML的配置形式是这样：        </p>
+    <pre><code class="xml">&lt;bean id=&quot;mockService&quot; class=&quot;..MockServiceImpl&quot;&gt;
+    ...
+&lt;/bean&gt;</code></pre>
+    <p>
+而基于Java config的配置形式是这样的：    </p>
+    <pre><code>@Configuration
+public class MockConfiguration{
+  @Bean
+  public MockService mockService(){
+      return new MockServiceImpl();
+  }
+}</code></pre>
+    <p>
+任何一个标注了@Bean的方法，其返回值将作为一个bean定义注册到Spring的IoC容器，方法名将默认成该bean定义的id。    </p>
+  </li>
+  <li>
+    <p>
+表达依赖注入关系层面
+为了表达bean与bean之间的依赖关系，在XML形式中一般是这样：    </p>
+    <pre><code class="xml">&lt;bean id=&quot;mockService&quot; class=&quot;..MockServiceImpl&quot;&gt;
+    &lt;propery name =&quot;dependencyService&quot; ref=&quot;dependencyService&quot; /&gt;
+&lt;/bean&gt;
+&lt;bean id=&quot;dependencyService&quot; class=&quot;DependencyServiceImpl&quot;&gt;&lt;/bean&gt;</code></pre>
+    <p>
+而基于Java config的配置形式是这样的：    </p>
+    <pre><code>@Configuration
+public class MockConfiguration{
+    @Bean
+    public MockService mockService(){
+        return new MockServiceImpl(dependencyService());
+    }
+    @Bean
+    public DependencyService dependencyService(){
+        return new DependencyServiceImpl();
+    }
+}</code></pre>
+    <p>
+如果一个bean的定义依赖其他bean,则直接调用对应的JavaConfig类中依赖bean的创建方法就可以了。    </p>
+  </li>
+</ul>
+<h3>
+1.2 @ComponentScan</h3>
+<p>
+@ComponentScan的功能其实就是自动扫描并加载符合条件的组件（比如@Component和@Repository等）或者bean定义，最终将这些bean定义加载到IoC容器中。</p>
+<p>
+我们可以通过basePackages等属性来细粒度的定制@ComponentScan自动扫描的范围，如果不指定，则默认Spring框架实现会从声明@ComponentScan所在类的package进行扫描。</p>
+<p>
+所以SpringBoot的启动类最好是放在root package下，因为默认不指定basePackages。</p>
+<h3>
+1.3 @EnableAutoConfiguration</h3>
+<p>
+Spring框架提供了各种名字为@Enable开头的Annotation定义，比如@EnableScheduling、@EnableCaching、@EnableMBeanExport等。@EnableAutoConfiguration的理念和做事方式其实一脉相承，简单概括一下就是，借助@Import的支持，收集和注册特定场景相关的bean定义。</p>
+<p>
+@EnableAutoConfiguration也是借助@Import的帮助，将所有符合自动配置条件的bean定义加载到IoC容器。</p>
+<pre><code>@SuppressWarnings(&quot;deprecation&quot;)
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Inherited
+@AutoConfigurationPackage
+@Import(EnableAutoConfigurationImportSelector.class)
+public @interface EnableAutoConfiguration {
+...
+}</code></pre>
+<p>
+@EnableAutoConfiguration作为一个复合Annotation，</p>
+<p>
+其中，最关键的要属@Import(EnableAutoConfigurationImportSelector.class)，借助EnableAutoConfigurationImportSelector，@EnableAutoConfiguration借助于SpringFactoriesLoader的支持可以帮助SpringBoot应用将所有符合条件的@Configuration配置都加载到当前SpringBoot创建并使用的IoC容器。SpringFactoriesLoader的支持。</p>
+<h3>
+1.4 SpringFactoriesLoader</h3>
+<p>
+SpringFactoriesLoader属于Spring框架私有的一种扩展方案，其主要功能就是从指定的配置文件<code class="inline">META-INF/spring.factories</code>加载配置。</p>
+<pre><code>public abstract class SpringFactoriesLoader {
+    public static &lt;T&gt; List&lt;T&gt; loadFactories(Class&lt;T&gt; factoryClass, ClassLoader classLoader) {
+        ...
+    }
+
+    public static List&lt;String&gt; loadFactoryNames(Class&lt;?&gt; factoryClass, ClassLoader classLoader){
+        ....
+    }
+}
+</code></pre>
+<p>
+配合@EnableAutoConfiguration使用的话，它更多是提供一种配置查找的功能支持，即根据@EnableAutoConfiguration的完整类名org.springframework.boot.autoconfigure.EnableAutoConfiguration作为查找的Key,获取对应的一组@Configuration类。</p>
+<p>
+  <img src="http://7xqch5.com1.z0.glb.clouddn.com/springboot3-2.jpg" alt="" />
+</p>
+<p>
+@EnableAutoConfiguration自动配置流程就是：</p>
+<ul>
+  <li>
+从classpath中搜寻所有的META-INF/spring.factories配置文件；  </li>
+  <li>
+并将其中org.springframework.boot.autoconfigure.EnableutoConfiguration对应的配置项通过反射（Java Refletion）实例化为对应的标注了@Configuration的JavaConfig形式的IoC容器配置类；  </li>
+  <li>
+然后汇总为一个并加载到IoC容器。  </li>
+</ul>
+<h2>
+2 SpringApplication</h2>
+<p>
+SpringApplication的run该方法的主要流程大体可以归纳如下：</p>
+<p>
+<strong>1）</strong> 如果我们使用的是SpringApplication的静态run方法，那么，这个方法里面首先要创建一个SpringApplication对象实例，然后调用这个创建好的SpringApplication的实例方法。在SpringApplication实例初始化的时候，它会提前做几件事情：</p>
+<ul>
+  <li>
+根据classpath里面是否存在某个特征类（org.springframework.web.context.ConfigurableWebApplicationContext）来决定是否应该创建一个为Web应用使用的ApplicationContext类型。  </li>
+  <li>
+使用SpringFactoriesLoader在应用的classpath中查找并加载所有可用的ApplicationContextInitializer。  </li>
+  <li>
+使用SpringFactoriesLoader在应用的classpath中查找并加载所有可用的ApplicationListener。  </li>
+  <li>
+推断并设置main方法的定义类。  </li>
+</ul>
+<p>
+<strong>2）</strong> SpringApplication实例初始化完成并且完成设置后，就开始执行run方法的逻辑了，方法执行伊始，首先遍历执行所有通过SpringFactoriesLoader可以查找到并加载的SpringApplicationRunListener。调用它们的started()方法，告诉这些SpringApplicationRunListener，“嘿，SpringBoot应用要开始执行咯！”。</p>
+<p>
+<strong>3）</strong> 创建并配置当前Spring Boot应用将要使用的Environment（包括配置要使用的PropertySource以及Profile）。</p>
+<p>
+<strong>4）</strong> 遍历调用所有SpringApplicationRunListener的environmentPrepared()的方法，告诉他们：“当前SpringBoot应用使用的Environment准备好了咯！”。</p>
+<p>
+<strong>5）</strong> 如果SpringApplication的showBanner属性被设置为true，则打印banner。</p>
+<p>
+<strong>6）</strong> 根据用户是否明确设置了applicationContextClass类型以及初始化阶段的推断结果，决定该为当前SpringBoot应用创建什么类型的ApplicationContext并创建完成，然后根据条件决定是否添加ShutdownHook，决定是否使用自定义的BeanNameGenerator，决定是否使用自定义的ResourceLoader，当然，最重要的，将之前准备好的Environment设置给创建好的ApplicationContext使用。</p>
+<p>
+<strong>7）</strong> ApplicationContext创建好之后，SpringApplication会再次借助Spring-FactoriesLoader，查找并加载classpath中所有可用的ApplicationContext-Initializer，然后遍历调用这些ApplicationContextInitializer的initialize（applicationContext）方法来对已经创建好的ApplicationContext进行进一步的处理。</p>
+<p>
+<strong>8）</strong> 遍历调用所有SpringApplicationRunListener的contextPrepared()方法。</p>
+<p>
+<strong>9）</strong> 最核心的一步，将之前通过@EnableAutoConfiguration获取的所有配置以及其他形式的IoC容器配置加载到已经准备完毕的ApplicationContext。</p>
+<p>
+<strong>10）</strong> 遍历调用所有SpringApplicationRunListener的contextLoaded()方法。</p>
+<p>
+<strong>11）</strong> 调用ApplicationContext的refresh()方法，完成IoC容器可用的最后一道工序。</p>
+<p>
+<strong>12）</strong> 查找当前ApplicationContext中是否注册有CommandLineRunner，如果有，则遍历执行它们。</p>
+<p>
+<strong>13）</strong> 正常情况下，遍历执行SpringApplicationRunListener的finished()方法、（如果整个过程出现异常，则依然调用所有SpringApplicationRunListener的finished()方法，只不过这种情况下会将异常信息一并传入处理）</p>
+<p>
+去除事件通知点后，整个流程如下图所示：</p>
+<p>
+  <img src="http://7xqch5.com1.z0.glb.clouddn.com/springboot3-3.jpg" alt="" />
+</p>
+<h2>
+3 参考资料</h2>
+<p>
+<a href="http://tengj.top/2017/04/24/springboot0/">Spring Boot干货系列：（三）启动原理解析</a>
+<a href="http://product.dangdang.com/23964779.html">SpringBoot揭秘快速构建为服务体系</a></p>
+
+            </article>
+        </div>
+    </body>
+</html>
+
+    

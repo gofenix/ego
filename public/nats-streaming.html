@@ -1,0 +1,222 @@
+<html>
+    <head>
+        <title> 
+            nats-streaming
+        </title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/styles/default.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/highlight.min.js"></script>
+
+    <script>
+      hljs.highlightAll();
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      .markdown-body {
+        box-sizing: border-box;
+        min-width: 200px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 45px;
+      }
+
+      @media (max-width: 767px) {
+        .markdown-body {
+          padding: 15px;
+        }
+      }
+    </style>
+    </head>
+
+    <body>
+        <div>
+            <article class="markdown-body"> 
+                <hr class="thin" />
+<p>
+date: “2018-07-30 14:51:26”
+title: NATS streaming</p>
+<hr class="thin" />
+<p>
+市面上常见到的和Nats功能类似的消息通信系统有：</p>
+<p>
+ActiveMQ（Java编写）、KafKa（Scala编写）、RabbitMq（Ruby编写）、Nats（之前是Ruby编写现已修改为Go）、Redis（C语言编写）、Kestrel（Scala编写不常用）、NSQ（Go语言编写），这些消息通信系统在Broker吞吐量方面的比较：</p>
+<p>
+  <img src="https://ws1.sinaimg.cn/large/b831e4c7gy1fts2j6kv9mj20mv0c8aa8.jpg" alt="" />
+</p>
+<p>
+可以看到NATS的吞吐量特别高， NATS原来是使用Ruby编写，可以实现每秒150k消息，后来使用Go语言重写，能够达到每秒8-11百万个消息，整个程序很小只有3M Docker image，它不支持持久化消息，如果你离线，你就不能获得消息。关于NATS的详细介绍，请参考上篇文章：<a href="https://zhuanlan.zhihu.com/p/40871363">NATS简介</a></p>
+<h2>
+NATS Streaming</h2>
+<p>
+NATS Streaming是由NATS驱动的数据流系统，也是由go语言写成的，在保证吞吐量和时延的基础上，解决了Nats消息投递一致性的问题。nats streaming可以和核心nats平台无缝嵌入，扩展和互动。</p>
+<p>
+  <img src="https://ws1.sinaimg.cn/large/b831e4c7gy1fts2wctrfzj20tk0r8afy.jpg" alt="" />
+</p>
+<h3>
+功能</h3>
+<p>
+除了nats平台的一些功能，nats streaming还支持以下的：</p>
+<ul>
+  <li>
+增强的消息协议  </li>
+  <li>
+消息/事件持久化  </li>
+  <li>
+至少一次投递  </li>
+  <li>
+发布者速率限制  </li>
+  <li>
+每个订阅者的速率匹配/限制  </li>
+  <li>
+可重复消费  </li>
+  <li>
+持久订阅  </li>
+</ul>
+<h3>
+使用</h3>
+<p>
+首先安装nats-streaming-server服务，有多种方式，这里介绍两种：</p>
+<ul>
+  <li>
+    <p>
+homebrew    </p>
+    <p>
+直接在命令行启动    </p>
+    <pre><code>brew install nats-streaming-server</code></pre>
+  </li>
+  <li>
+    <p>
+go get    </p>
+    <p>
+这种方式可以让我们直接运行源码启动    </p>
+    <pre><code>go get github.com/nats-io/nats-streaming-server</code></pre>
+  </li>
+</ul>
+<p>
+启动nats-streaming-server</p>
+<p>
+有三种启动方式</p>
+<ul>
+  <li>
+    <p>
+直接启动    </p>
+    <pre><code>nats-streaming-server</code></pre>
+  </li>
+  <li>
+    <p>
+开启nats监控的启动    </p>
+    <pre><code>nats-streaming-server -m 8222</code></pre>
+  </li>
+  <li>
+    <p>
+源码方式启动    </p>
+    <pre><code>cd $GOPATH/src/github.com/nats-io/nats-streaming-server
+go run nats-streaming-server.go</code></pre>
+  </li>
+</ul>
+<h3>
+客户端</h3>
+<p>
+直接下载go的客户端</p>
+<pre><code>go get github.com/nats-io/go-nats-streaming</code></pre>
+<p>
+运行发布者</p>
+<pre><code>cd $GOPATH/src/github.com/nats-io/go-nats-streaming/examples/stan-pub
+
+go run main.go foo &quot;msg one&quot;
+
+go run main.go foo &quot;msg two&quot;
+
+go run main.go foo &quot;msg three&quot;</code></pre>
+<p>
+如下图所示：</p>
+<p>
+  <img src="https://ws1.sinaimg.cn/large/b831e4c7gy1ftrx4gytrhj20q50g0juj.jpg" alt="" />
+</p>
+<p>
+运行订阅者</p>
+<pre><code>cd $GOPATH/src/github.com/nats-io/go-nats-streaming/examples/stan-sub
+
+go run main.go --all -c test-cluster -id myID foo</code></pre>
+<p>
+  <img src="https://ws1.sinaimg.cn/large/b831e4c7gy1ftrx8h85rpj20qq0fu41n.jpg" alt="" />
+</p>
+<h3>
+实例</h3>
+<p>
+首先在本地启动nats-streaming-server，然后下面的代码展示了发布订阅的过程：</p>
+<pre><code>package main
+
+import (
+    &quot;github.com/nats-io/go-nats-streaming&quot;
+    &quot;github.com/nats-io/go-nats-streaming/pb&quot;
+    &quot;log&quot;
+    &quot;strconv&quot;
+    &quot;time&quot;
+)
+
+func main() {
+    var clusterId string = &quot;test-cluster&quot;
+    var clientId string = &quot;test-client&quot;
+
+    sc, err := stan.Connect(clusterId, clientId, stan.NatsURL(&quot;nats://localhost:4222&quot;))
+    if err != nil {
+        log.Fatal(err)
+        return
+    }
+
+    // 开启一个协程，不停的生产数据
+    go func() {
+        m := 0
+        for {
+            m++
+            sc.Publish(&quot;foo1&quot;, []byte(&quot;hello message &quot;+strconv.Itoa(m)))
+            time.Sleep(time.Second)
+        }
+
+    }()
+
+    // 消费数据
+    i := 0
+    mcb := func(msg *stan.Msg) {
+        i++
+        log.Println(i, &quot;----&gt;&quot;, msg.Subject, msg)
+    }
+    startOpt := stan.StartAt(pb.StartPosition_LastReceived)
+    //_, err = sc.QueueSubscribe(&quot;foo1&quot;, &quot;&quot;, mcb, startOpt)   // 也可以用queue subscribe
+    _, err = sc.Subscribe(&quot;foo1&quot;, mcb, startOpt)
+    if err != nil {
+        sc.Close()
+        log.Fatal(err)
+    }
+
+    // 创建一个channel，阻塞着
+    signalChan := make(chan int)
+    &lt;-signalChan
+}</code></pre>
+<p>
+运行结果如下：</p>
+<pre><code>2018/07/30 18:04:01 2 ----&gt; foo1 sequence:546 subject:&quot;foo1&quot; data:&quot;hello message 1&quot; timestamp:1532945041825538757 
+2018/07/30 18:04:02 3 ----&gt; foo1 sequence:547 subject:&quot;foo1&quot; data:&quot;hello message 2&quot; timestamp:1532945042828881383 
+2018/07/30 18:04:03 4 ----&gt; foo1 sequence:548 subject:&quot;foo1&quot; data:&quot;hello message 3&quot; timestamp:1532945043833360222 
+2018/07/30 18:04:04 5 ----&gt; foo1 sequence:549 subject:&quot;foo1&quot; data:&quot;hello message 4&quot; timestamp:1532945044833810697 
+2018/07/30 18:04:05 6 ----&gt; foo1 sequence:550 subject:&quot;foo1&quot; data:&quot;hello message 5&quot; timestamp:1532945045838056450 
+2018/07/30 18:04:06 7 ----&gt; foo1 sequence:551 subject:&quot;foo1&quot; data:&quot;hello message 6&quot; timestamp:1532945046838585417 
+2018/07/30 18:04:07 8 ----&gt; foo1 sequence:552 subject:&quot;foo1&quot; data:&quot;hello message 7&quot; timestamp:1532945047840775810 </code></pre>
+<p>
+源码在：<a href="https://github.com/zhenfeng-zhu/nats-demo">https://github.com/zhenfeng-zhu/nats-demo</a></p>
+<h2>
+总结</h2>
+<p>
+NATS Streaming的高级功能类似于 Apache Kafka 的功能，但当你考虑简单性而非复杂性时前者更优。由于 NATS Streaming 相对来说是一项新技术，与 Apache Kafka 相比，它在某些领域需要改进，尤其是为负载均衡场景提供更好的解决方案。</p>
+
+            </article>
+        </div>
+    </body>
+</html>
+
+    

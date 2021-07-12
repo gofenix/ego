@@ -1,0 +1,247 @@
+<html>
+    <head>
+        <title> 
+            docker
+        </title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/styles/default.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/highlight.min.js"></script>
+
+    <script>
+      hljs.highlightAll();
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      .markdown-body {
+        box-sizing: border-box;
+        min-width: 200px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 45px;
+      }
+
+      @media (max-width: 767px) {
+        .markdown-body {
+          padding: 15px;
+        }
+      }
+    </style>
+    </head>
+
+    <body>
+        <div>
+            <article class="markdown-body"> 
+                <hr class="thin" />
+<p>
+date: “2018-03-24 17:42:58”
+title: docker</p>
+<hr class="thin" />
+<h1>
+docker常用命令</h1>
+<h2>
+docker</h2>
+<ol>
+  <li>
+    <p>
+获取镜像    </p>
+    <p>
+docker pull     </p>
+  </li>
+  <li>
+    <p>
+新建并启动    </p>
+    <p>
+docker run    </p>
+  </li>
+  <li>
+    <p>
+列出镜像    </p>
+    <p>
+docker image ls
+docker images    </p>
+  </li>
+  <li>
+    <p>
+删除虚悬镜像    </p>
+    <p>
+docker image prune    </p>
+  </li>
+  <li>
+    <p>
+删除本地镜像    </p>
+    <p>
+docker iamge rm    </p>
+  </li>
+  <li>
+    <p>
+查看应用信息    </p>
+    <p>
+docker logs    </p>
+  </li>
+</ol>
+<h2>
+dockerfile</h2>
+<h3>
+一般步骤：</h3>
+<ul>
+  <li>
+在一个目录里，新建一个文件，命名为Dockerfile  </li>
+  <li>
+在Dockerfile的目录内，执行docker build   </li>
+</ul>
+<h3>
+常用指令</h3>
+<ol>
+  <li>
+    <p>
+FROM 指定基础镜像，且是第一条命令    </p>
+  </li>
+  <li>
+    <p>
+RUN 执行命令    </p>
+    <p>
+shell格式
+exec格式    </p>
+  </li>
+  <li>
+    <p>
+COPY和ADD指令是复制文件    </p>
+  </li>
+  <li>
+    <p>
+CMD指令和RUN类似，容器启动命令    </p>
+    <p>
+shell格式
+exec格式
+参数列表格式    </p>
+  </li>
+  <li>
+    <p>
+ENV 设置环境变量    </p>
+  </li>
+  <li>
+    <p>
+EXPOSE 声明对外暴露的端口    </p>
+  </li>
+  <li>
+    <p>
+WORKDIR 指定工作目录    </p>
+  </li>
+</ol>
+<h2>
+compose</h2>
+<h3>
+两个重要的概念</h3>
+<ul>
+  <li>
+service 服务：一个应用的容器，实际上可以包括若干运行相同镜像的实例。  </li>
+  <li>
+project 项目：由一组关联的容器组成一个完整业务单元，在docker-compose.yml文件中定义。  </li>
+</ul>
+<h3>
+一般步骤：</h3>
+<ul>
+  <li>
+    <p>
+在一个项目目录里，新建一个Dockerfile    </p>
+  </li>
+  <li>
+    <p>
+新建一个文件docker-compose.yml    </p>
+    <p>
+模板格式    </p>
+    <pre><code>version: 3.0
+services:
+  web:
+      build: .
+      ports:
+          - &quot;5000:5000&quot;
+  redis:
+      images: &quot;redis:alpine&quot;</code></pre>
+  </li>
+  <li>
+    <p>
+docker-compose up运行项目    </p>
+  </li>
+</ul>
+<h3>
+常用命令：</h3>
+<ol>
+  <li>
+docker-compose build 重新构建项目中的服务容器  </li>
+  <li>
+config 验证compose文件格式是否正确  </li>
+  <li>
+down 停止up命令所启动的容器  </li>
+  <li>
+images 列出compose文件中包含的镜像  </li>
+  <li>
+exec 进入指定的容器  </li>
+  <li>
+kill 强制停止服务容器  </li>
+  <li>
+ps 列出目前所有容器  </li>
+  <li>
+rm 删除停止状态的容器  </li>
+  <li>
+top 显示所有容器的进程  </li>
+</ol>
+<h3>
+compose模板文件：</h3>
+<p>
+每个服务都必须通过image指令指定镜像或者build指令（需要dockerfile）来构建生成的镜像。</p>
+<ol>
+  <li>
+    <p>
+build    </p>
+    <p>
+指定dockerfile所在的文件夹路径，compose将会利用它来自动构建这个镜像，然后使用。    </p>
+  </li>
+  <li>
+    <p>
+depends_on    </p>
+    <p>
+解决容器的依赖和先后启动问题。但是不会等待完成启动之后再启动，而是在他们启动之后就去启动。    </p>
+  </li>
+  <li>
+    <p>
+environment    </p>
+    <p>
+设置环境变量，在这里指定程序或者容器启动时所依赖的环境参数。    </p>
+  </li>
+  <li>
+    <p>
+expose    </p>
+    <p>
+指定暴露的端口，只被连接的服务访问。    </p>
+  </li>
+  <li>
+    <p>
+image    </p>
+    <p>
+指定镜像名称，如果本地不存在则去拉取这个镜像。    </p>
+  </li>
+  <li>
+    <p>
+labels    </p>
+    <p>
+为容器添加docker元数据信息，即一些辅助说明。    </p>
+  </li>
+  <li>
+    <p>
+ports    </p>
+    <p>
+暴露端口信息，宿主端口:容器端口，或者只指定容器端口。    </p>
+  </li>
+</ol>
+
+            </article>
+        </div>
+    </body>
+</html>
+
+    

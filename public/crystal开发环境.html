@@ -1,0 +1,86 @@
+<html>
+    <head>
+        <title> 
+            crystal开发环境
+        </title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/styles/default.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/highlight.min.js"></script>
+
+    <script>
+      hljs.highlightAll();
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      .markdown-body {
+        box-sizing: border-box;
+        min-width: 200px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 45px;
+      }
+
+      @media (max-width: 767px) {
+        .markdown-body {
+          padding: 15px;
+        }
+      }
+    </style>
+    </head>
+
+    <body>
+        <div>
+            <article class="markdown-body"> 
+                <hr class="thin" />
+<p>
+date: “2019-08-27 14:03:12”
+title: crystal开发环境</p>
+<hr class="thin" />
+<p>
+突然搞明白了 crystal 的 vscode 插件的正确使用姿势，记录一下。</p>
+<h1>
+安装 crystal</h1>
+<pre><code>brew install crystal</code></pre>
+<h1>
+安装 vscode 插件</h1>
+<p>
+<a href="https://marketplace.visualstudio.com/items?itemName=faustinoaq.crystal-lang">https://marketplace.visualstudio.com/items?itemName=faustinoaq.crystal-lang</a></p>
+<h1>
+安装 scry</h1>
+<p>
+scry 是 crystal 的 language server 的 client 工具，在本地安装 scry 就可以做到代码跳转了。</p>
+<pre><code>$ git clone https://github.com/crystal-lang-tools/scry.git
+
+$ cd scry
+
+$ shards build -v
+Dependencies are satisfied
+Building: scry
+crystal build -o /Users/lucas/Documents/demos/crystal/scry/bin/scry src/scry.cr</code></pre>
+<p>
+/Users/lucas/Documents/demos/crystal/scry/bin/scry 就是编译出来的二进制的路径</p>
+<h1>
+配置插件</h1>
+<pre><code class="json">  &quot;crystal-lang.compiler&quot;: &quot;crystal&quot;,
+  &quot;crystal-lang.server&quot;: &quot;/Users/lucas/Documents/demos/crystal/scry/bin/scry&quot;,
+  &quot;crystal-lang.maxNumberOfProblems&quot;: 20,
+  &quot;crystal-lang.mainFile&quot;: &quot;${workspaceRoot}/src/main.cr&quot;,
+  &quot;crystal-lang.processesLimit&quot;: 5,
+  &quot;crystal-lang.hover&quot;: true,
+  &quot;crystal-lang.problems&quot;: &quot;build&quot;,
+  &quot;crystal-lang.implementations&quot;: true,
+  &quot;crystal-lang.completion&quot;: true,
+  &quot;crystal-lang.logLevel&quot;: &quot;info&quot;,</code></pre>
+<p>
+把上面的配置加到 vscode 的 settings 文件中，就可以愉快的开发啦。</p>
+
+            </article>
+        </div>
+    </body>
+</html>
+
+    

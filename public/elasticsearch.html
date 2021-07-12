@@ -1,0 +1,354 @@
+<html>
+    <head>
+        <title> 
+            elasticsearch
+        </title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/styles/default.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.1.0/build/highlight.min.js"></script>
+
+    <script>
+      hljs.highlightAll();
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      .markdown-body {
+        box-sizing: border-box;
+        min-width: 200px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 45px;
+      }
+
+      @media (max-width: 767px) {
+        .markdown-body {
+          padding: 15px;
+        }
+      }
+    </style>
+    </head>
+
+    <body>
+        <div>
+            <article class="markdown-body"> 
+                <hr class="thin" />
+<p>
+date: “2018-05-20 14:17:07”
+title: elasticsearch</p>
+<hr class="thin" />
+<p>
+以前没有好好学的东西，现在在工作中慢慢的补回来了。</p>
+<h1>
+基础概念</h1>
+<ul>
+  <li>
+索引  </li>
+</ul>
+<p>
+es是将数据存储在一个或者多个索引（index）中。</p>
+<p>
+索引就像是数据库。</p>
+<ul>
+  <li>
+文档  </li>
+</ul>
+<p>
+文档是es的实体。由字段构成，每个字段包含字段名和一个或者多个字段值。</p>
+<p>
+文档就像数据库中的一条条记录。</p>
+<ul>
+  <li>
+类型  </li>
+</ul>
+<p>
+每个文档都有一个类型与之相对应。</p>
+<p>
+类型就像数据库中的表。</p>
+<ul>
+  <li>
+映射  </li>
+</ul>
+<p>
+所有文档在被写入到es中，都会被分析。由用户设置一些参数决定如何分割词条、哪些字应该被过滤掉等等。</p>
+<ul>
+  <li>
+节点  </li>
+</ul>
+<p>
+单个es服务实例就是一个节点。</p>
+<ul>
+  <li>
+集群  </li>
+</ul>
+<p>
+多个协同工作的es节点的集合就是集群。</p>
+<ul>
+  <li>
+分片  </li>
+</ul>
+<p>
+es将数据分散到多个物理的Lucene索引上，这些物理Lucene索引被称为分片。</p>
+<ul>
+  <li>
+副本  </li>
+</ul>
+<p>
+副本就是每个分片都做冗余处理，一个宕机之后，不影响服务。</p>
+<h1>
+快速入门</h1>
+<h2>
+安装</h2>
+<p>
+es的安装很简单，我这里使用的是mac，下载下来zip包，解压即可使用。</p>
+<pre><code>[elasticsearch-6.2.4] pwd
+/Users/zhuzhenfeng/Documents/software/elasticsearch-6.2.4
+[elasticsearch-6.2.4] ./bin/elasticsearch
+Java HotSpot(TM) 64-Bit Server VM warning: Option UseConcMarkSweepGC was deprecated in version 9.0 and will likely be removed in a future release.
+[2018-05-20T17:18:37,619][INFO ][o.e.n.Node               ] [] initializing ...
+[2018-05-20T17:18:37,766][INFO ][o.e.e.NodeEnvironment    ] [M41310-] using [1] data paths, mounts [[/ (/dev/disk1s1)]], net usable_space [136gb], net total_space [233.4gb], types [apfs]
+[2018-05-20T17:18:37,767][INFO ][o.e.e.NodeEnvironment    ] [M41310-] heap size [990.7mb], compressed ordinary object pointers [true]</code></pre>
+<p>
+这样就将es启动了，然后在chrome中，输入<a href="http://localhost:9200">http://localhost:9200</a>，即可查看有没有启动成功。</p>
+<pre><code class="on">{
+    &quot;name&quot;: &quot;M41310-&quot;,
+    &quot;cluster_name&quot;: &quot;elasticsearch&quot;,
+    &quot;cluster_uuid&quot;: &quot;58U11tViTYuXpI2b5SiGrg&quot;,
+    &quot;version&quot;: {
+        &quot;number&quot;: &quot;6.2.4&quot;,
+        &quot;build_hash&quot;: &quot;ccec39f&quot;,
+        &quot;build_date&quot;: &quot;2018-04-12T20:37:28.497551Z&quot;,
+        &quot;build_snapshot&quot;: false,
+        &quot;lucene_version&quot;: &quot;7.2.1&quot;,
+        &quot;minimum_wire_compatibility_version&quot;: &quot;5.6.0&quot;,
+        &quot;minimum_index_compatibility_version&quot;: &quot;5.0.0&quot;
+    },
+    &quot;tagline&quot;: &quot;You Know, for Search&quot;
+}</code></pre>
+<h2>
+常用的命令</h2>
+<p>
+使用postman来模拟发送请求。</p>
+<h3>
+创建index</h3>
+<p>
+PUT</p>
+<pre><code>http://127.0.0.1:9200/myindex</code></pre>
+<p>
+response</p>
+<pre><code class="on">{
+    &quot;acknowledged&quot;: true,
+    &quot;shards_acknowledged&quot;: true,
+    &quot;index&quot;: &quot;myindex&quot;
+}</code></pre>
+<p>
+创建了一个叫myindex的索引</p>
+<h3>
+删除index</h3>
+<p>
+DELETE</p>
+<pre><code>http://127.0.0.1:9200/myindex</code></pre>
+<p>
+response</p>
+<pre><code class="on">{
+    &quot;acknowledged&quot;: true
+}</code></pre>
+<p>
+使用delete方法就可以删除索引，而且可以发现es的response特别人性化。</p>
+<h3>
+创建maping</h3>
+<p>
+POST</p>
+<pre><code>http://localhost:9200/myindex/fulltext/_mapping</code></pre>
+<p>
+body</p>
+<pre><code class="on">{
+  &quot;properties&quot;: {
+    &quot;content&quot;: {
+      &quot;type&quot;: &quot;text&quot;,
+      &quot;analyzer&quot;: &quot;ik_max_word&quot;,
+      &quot;search_analyzer&quot;: &quot;ik_max_word&quot;
+    }
+  }
+}</code></pre>
+<p>
+response</p>
+<pre><code class="on">{
+    &quot;acknowledged&quot;: true
+}</code></pre>
+<p>
+在这里在创建一个type是fulltext的同时，指定了这个fulltext类型的字段映射。在mapping中，一般是设置字段是什么类型的，比如bool，text等。analyzer是给文档建索引的分词方法，search_analyzer是搜索时对搜索的内容进行分词的方法。这里都是用了ik的分词器。</p>
+<h3>
+新增doc</h3>
+<p>
+POST</p>
+<pre><code>http://localhost:9200/myindex/fulltext/1</code></pre>
+<p>
+body</p>
+<pre><code class="on">{ 
+    &quot;content&quot;: &quot;中国崛起哦&quot; 
+}</code></pre>
+<p>
+response</p>
+<pre><code class="on">{
+    &quot;_index&quot;: &quot;myindex&quot;,
+    &quot;_type&quot;: &quot;fulltext&quot;,
+    &quot;_id&quot;: &quot;1&quot;,
+    &quot;_version&quot;: 1,
+    &quot;result&quot;: &quot;created&quot;,
+    &quot;_shards&quot;: {
+        &quot;total&quot;: 2,
+        &quot;successful&quot;: 1,
+        &quot;failed&quot;: 0
+    },
+    &quot;_seq_no&quot;: 0,
+    &quot;_primary_term&quot;: 1
+}</code></pre>
+<p>
+如果没有指定id的话，每次新增的时候都会用es自动给的id。如果不注意的话，可能会出现重复新增，所以我们一般情况下会使用自己给的的id。</p>
+<h3>
+搜索</h3>
+<p>
+POST</p>
+<pre><code>http://127.0.0.1:9200/myindex/fulltext/_search</code></pre>
+<p>
+body</p>
+<pre><code class="on">{
+  &quot;query&quot;: {
+    &quot;match&quot;: {
+      &quot;content&quot;: {
+        &quot;query&quot;: &quot;中国&quot;
+      }
+    }
+  }
+}</code></pre>
+<p>
+response</p>
+<pre><code class="on">{
+    &quot;took&quot;: 98,
+    &quot;timed_out&quot;: false,
+    &quot;_shards&quot;: {
+        &quot;total&quot;: 5,
+        &quot;successful&quot;: 5,
+        &quot;skipped&quot;: 0,
+        &quot;failed&quot;: 0
+    },
+    &quot;hits&quot;: {
+        &quot;total&quot;: 1,
+        &quot;max_score&quot;: 0.2876821,
+        &quot;hits&quot;: [
+            {
+                &quot;_index&quot;: &quot;myindex&quot;,
+                &quot;_type&quot;: &quot;fulltext&quot;,
+                &quot;_id&quot;: &quot;1&quot;,
+                &quot;_score&quot;: 0.2876821,
+                &quot;_source&quot;: {
+                    &quot;content&quot;: &quot;中国崛起哦&quot;
+                }
+            }
+        ]
+    }
+}。</code></pre>
+<p>
+前面都没啥，主要就是如何把数据灌到es中。es作为一个搜索引擎，肯定搜索才是最重要的。这里只是用的最简单的搜索。关于es的搜索，我在实际生产中主要使用的是，多字段的搜索，使用了bool操作符。</p>
+<h1>
+原理</h1>
+<h2>
+相关性得分</h2>
+<p>
+Elasticsearch 默认按照相关性得分排序，即每个文档跟查询的匹配程度。Elasticsearch中的 <em>相关性</em> 概念非常重要，也是完全区别于传统关系型数据库的一个概念，数据库中的一条记录要么匹配要么不匹配。</p>
+<h1>
+搜索</h1>
+<h2>
+轻量级搜索</h2>
+<p>
+_search</p>
+<p>
+_search?q=content:中国</p>
+<p>
+这种搜索方式比较简单，很轻量。</p>
+<h2>
+查询表达式</h2>
+<p>
+即dsl形式的。使用的是POST方法，在body中，写搜索的dsl。</p>
+<h3>
+简单的dsl</h3>
+<pre><code>{
+  &quot;query&quot;: {
+    &quot;match&quot;: {
+      &quot;content&quot;: {
+        &quot;query&quot;: &quot;中国&quot;
+      }
+    }
+  }
+}</code></pre>
+<h3>
+bool操作符的DSL</h3>
+<pre><code class="on">{
+    &quot;query&quot; : {
+        &quot;bool&quot;: {
+            &quot;must&quot;: {
+                &quot;match&quot; : {
+                    &quot;last_name&quot; : &quot;smith&quot; 
+                }
+            },
+            &quot;filter&quot;: {
+                &quot;range&quot; : {
+                    &quot;age&quot; : { &quot;gt&quot; : 30 } 
+                }
+            }
+        }
+    }
+}</code></pre>
+<p>
+我们添加了一个 <em>过滤器</em> 用于执行一个范围查询，并复用之前的 <code class="inline">match</code> 查询。</p>
+<h3>
+短语搜索</h3>
+<pre><code class="on">{
+    &quot;query&quot; : {
+        &quot;match_phrase&quot; : {
+            &quot;about&quot; : &quot;rock climbing&quot;
+        }
+    }
+}</code></pre>
+<p>
+如果不用短语搜索的话，会将只含有rock或者climbing的返回。为了能让二者是短语形式，es中新增了短语搜索dsl。</p>
+<h3>
+高亮</h3>
+<p>
+许多应用都倾向于在每个搜索结果中 <em>高亮</em> 部分文本片段，以便让用户知道为何该文档符合查询条件。在 Elasticsearch 中检索出高亮片段也很容易。</p>
+<pre><code class="on">{
+    &quot;query&quot; : {
+        &quot;match_phrase&quot; : {
+            &quot;about&quot; : &quot;rock climbing&quot;
+        }
+    },
+    &quot;highlight&quot;: {
+        &quot;fields&quot; : {
+            &quot;about&quot; : {}
+        }
+    }
+}</code></pre>
+<p>
+加上highlight关键字即可。</p>
+<h3>
+聚合</h3>
+<p>
+ Elasticsearch 有一个功能叫聚合（aggregations），允许我们基于数据生成一些精细的分析结果。聚合与 SQL 中的 <code class="inline">GROUP BY</code> 类似但更强大。</p>
+<pre><code class="on">{
+  &quot;aggs&quot;: {
+    &quot;all_interests&quot;: {
+      &quot;terms&quot;: { &quot;field&quot;: &quot;interests&quot; }
+    }
+  }
+}</code></pre>
+
+            </article>
+        </div>
+    </body>
+</html>
+
+    
