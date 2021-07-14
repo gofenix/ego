@@ -31,7 +31,13 @@ defmodule Mark do
   def convert do
     IO.puts("convert")
     init()
-    blog_files() |> gen_index() |> Enum.each(fn m -> gen_blogs(m) end)
+
+    Task.start_link(fn -> blog_files() |> gen_index() end)
+
+    blog_files()
+    |> Enum.map(fn m -> Task.async(fn -> gen_blogs(m) end) end)
+    |> Task.await_many()
+    |> IO.inspect()
   end
 
   def gen_index(blogs) do
@@ -39,8 +45,6 @@ defmodule Mark do
     |> Enum.map(fn m -> m |> get_title() |> build_title_with_href() end)
     |> eval_index()
     |> write_to("index")
-
-    blog_files()
   end
 
   def build_title_with_href(title) do
@@ -52,8 +56,6 @@ defmodule Mark do
   end
 
   def eval_index(titles) do
-    IO.inspect(titles)
-
     EEx.eval_file(index_layout(),
       assigns: [t: "zzf-blog", list: titles]
     )
