@@ -2,6 +2,8 @@ defmodule Ego do
   @moduledoc """
   Documentation for `Ego`.
   """
+  require Logger
+
   def main(args \\ []) do
     # args |> parse_args() |> response() |> IO.inspect()
 
@@ -25,8 +27,10 @@ defmodule Ego do
     end
   end
 
-  defp start_server do
-    Plug.Cowboy.http(MyPlug, [])
+  def start_server do
+    port = EgoConfig.port()
+    Plug.Cowboy.http(MyPlug, [], port: port)
+    Logger.info("start at http://localhost:#{port}")
     :timer.sleep(:infinity)
   end
 

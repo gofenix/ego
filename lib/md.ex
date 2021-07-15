@@ -1,9 +1,8 @@
 defmodule Mark do
   require EEx
-  @conf File.read!("#{File.cwd!()}/config.json") |> JSON.decode!()
 
   def init do
-    IO.inspect(@conf)
+    IO.inspect(EgoConfig.conf())
     File.rm_rf!(static_dir())
     File.mkdir_p!(static_dir())
   end
@@ -52,7 +51,7 @@ defmodule Mark do
   end
 
   def get_href(title) do
-    "#{@conf["domain"]}/#{title}.html"
+    "#{EgoConfig.domain()}/#{title}.html"
   end
 
   def eval_index(titles) do

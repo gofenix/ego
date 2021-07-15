@@ -2,7 +2,15 @@ defmodule EgoTest do
   use ExUnit.Case
   doctest Ego
 
-  test "greets the world" do
-    assert Ego.hello() == :world
+  test "parse domain" do
+    assert EgoConfig.port() == 3000
+  end
+
+  test "init" do
+    Mark.init()
+  end
+
+  test "start server" do
+    Ego.start_server()
   end
 end
